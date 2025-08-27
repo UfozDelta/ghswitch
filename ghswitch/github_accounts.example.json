@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Doe",
+    "username": "John",
+    "email": "main@mail.com",
+    "token": "ghp____"
+  },
+  {
+    "name": "Doe",
+    "username": "John",
+    "email": "main@mail.com", 
+    "token": "ghp__"
+  }
+]

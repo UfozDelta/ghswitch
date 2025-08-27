@@ -3,14 +3,21 @@ import argparse
 import subprocess
 import sys
 import win32cred
+import importlib.resources as pkg_resources
+import os
 
 CRED_TYPE = win32cred.CRED_TYPE_GENERIC
 TARGET_NAME = "git:https://github.com"  # Git for Windows uses this target
 
-
-def load_accounts(filepath="github_accounts.json"):
-    with open(filepath, "r") as f:
-        return json.load(f)
+def load_accounts(filepath=None):
+    if filepath and os.path.exists(filepath):
+        # user-supplied file still works
+        with open(filepath, "r") as f:
+            return json.load(f)
+    else:
+        # fallback: use packaged example JSON
+        with pkg_resources.open_text("ghswitch", "github_accounts.example.json") as f:
+            return json.load(f)
 
 
 def switch_account(name, accounts, global_config=True):
@@ -78,7 +85,7 @@ Examples:
   ghswitch current
 """)
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="GitHub Credential Switcher (Windows)", add_help=False)
     parser.add_argument("action", choices=["list", "switch", "current", "help"], help="Action to perform")
     parser.add_argument("--name", help="Account name (for switch)")
@@ -102,3 +109,7 @@ if __name__ == "__main__":
             switch_account(args.name, accounts, global_config=not args.local)
     elif args.action == "current":
         current_account()
+
+# This makes "python ghswitch.py" still work
+if __name__ == "__main__":
+    main()

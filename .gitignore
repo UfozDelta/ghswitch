@@ -1,2 +1,11 @@
 .venv/
 github_accounts.json
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
