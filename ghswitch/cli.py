@@ -5,18 +5,41 @@ import sys
 import win32cred
 import importlib.resources as pkg_resources
 import os
+import shutil
 
 CRED_TYPE = win32cred.CRED_TYPE_GENERIC
 TARGET_NAME = "git:https://github.com"  # Git for Windows uses this target
 
+def get_user_config_path():
+    """Return the path to the user's .ghswitch directory and JSON file."""
+    home = os.path.expanduser("~")
+    config_dir = os.path.join(home, ".ghswitch")
+    config_file = os.path.join(config_dir, "github_accounts.json")
+    return config_dir, config_file
+
+def ensure_user_config():
+    """Create .ghswitch folder and copy example JSON if it doesn't exist."""
+    config_dir, config_file = get_user_config_path()
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir)
+    if not os.path.exists(config_file):
+        # Copy example JSON from package
+        with pkg_resources.open_text("ghswitch", "github_accounts.example.json") as f:
+            data = f.read()
+        with open(config_file, "w") as f:
+            f.write(data)
+    return config_file
+
 def load_accounts(filepath=None):
+    """Load accounts from user JSON or supplied file."""
     if filepath and os.path.exists(filepath):
         # user-supplied file still works
         with open(filepath, "r") as f:
             return json.load(f)
     else:
-        # fallback: use packaged example JSON
-        with pkg_resources.open_text("ghswitch", "github_accounts.example.json") as f:
+        # use user config in .ghswitch
+        config_file = ensure_user_config()
+        with open(config_file, "r") as f:
             return json.load(f)
 
 
